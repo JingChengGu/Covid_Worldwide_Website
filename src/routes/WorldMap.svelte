@@ -154,21 +154,20 @@
         .attr('d', d3.line().x(d => xScale(d.date)).y(d => yScale(d.deaths)));
 }
 
-
-
     function drawLine(g, data, metric, color, xScale, yScale) {
-        const line = d3.line()
-            .x(d => xScale(d.date))
-            .y(d => yScale(d[metric]));
+            const line = d3.line()
+                .x(d => xScale(d.date))
+                .y(d => yScale(d[metric]));
 
-        g.append("path")
-            .datum(data)
-            .attr("class", `line ${metric}`)
-            .attr("d", line)
-            .attr("fill", "none")
-            .attr("stroke", color)
-            .attr("stroke-width", 2);
-    }
+            g.append("path")
+                .datum(data)
+                .attr("class", `line ${metric}`)
+                .attr("d", line)
+                .attr("fill", "none")
+                .attr("stroke", color)
+                .attr("stroke-width", 3);
+        }
+
 
     function processCovidData(csvData) {
         let processedData = {};
