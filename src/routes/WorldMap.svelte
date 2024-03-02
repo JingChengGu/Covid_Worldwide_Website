@@ -91,37 +91,43 @@
     }
 
     function drawLineGraph() {
-        const margin = { top: 10, right: 30, bottom: 30, left: 60 };
-        const width = 1500 - margin.left - margin.right;
-        const height = 700 - margin.top - margin.bottom;
+    const margin = { top: 10, right: 30, bottom: 30, left: 60 };
+    const width = 1500 - margin.left - margin.right;
+    const height = 700 - margin.top - margin.bottom;
 
-        const g = d3.select(lineGraphSvg)
-            .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-            .append('g')
-            .attr('transform', `translate(${margin.left},${margin.top})`);
+    const g = d3.select(lineGraphSvg)
+        .attr('viewBox', `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
+        .append('g')
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
-        xScale = d3.scaleTime()
-            .domain(d3.extent(globalCovidData, d => d.date))
-            .range([0, width]);
+    xScale = d3.scaleTime()
+        .domain(d3.extent(globalCovidData, d => d.date))
+        .range([0, width]);
 
-        yScale = d3.scaleLinear()
-            .domain([0, d3.max(globalCovidData, d => Math.max(d.cases, d.deaths, d.recovered))])
-            .range([height, 0]);
+    yScale = d3.scaleLinear()
+        .domain([0, d3.max(globalCovidData, d => Math.max(d.cases, d.deaths, d.recovered))])
+        .range([height, 0]);
 
-        xAxis = d3.axisBottom(xScale);
-        yAxis = d3.axisLeft(yScale);
+    // Update xAxis setup with time format
+    xAxis = d3.axisBottom(xScale).tickFormat(d3.timeFormat("%B %d"));
 
-        g.append('g')
-            .attr('transform', `translate(0, ${height})`)
-            .call(xAxis);
 
-        g.append('g')
-            .call(yAxis);
+    yAxis = d3.axisLeft(yScale);
 
-        drawLine(g, globalCovidData, 'cases', 'steelblue', xScale, yScale);
-        drawLine(g, globalCovidData, 'recovered', 'green', xScale, yScale);
-        drawLine(g, globalCovidData, 'deaths', 'red', xScale, yScale);
-    }
+    g.append('g')
+        .attr('transform', `translate(0, ${height})`)
+        .attr('class', 'x-axis')
+        .call(xAxis);
+
+    g.append('g')
+        .attr('class', 'y-axis')
+        .call(yAxis);
+
+    // Draw lines for cases, deaths, and recovered
+    drawLine(g, globalCovidData, 'cases', '#ffab00', xScale, yScale);
+    drawLine(g, globalCovidData, 'deaths', '#ff1744', xScale, yScale);
+    drawLine(g, globalCovidData, 'recovered', '#00e676', xScale, yScale);
+}
 
     function updateLineGraph(currentDate) {
     const filteredData = globalCovidData.filter(d => d.date <= currentDate);
@@ -132,42 +138,89 @@
     // Update yScale domain based on filtered data
     yScale.domain([0, d3.max(filteredData, d => Math.max(d.cases, d.deaths, d.recovered))]);
 
-    // Update x-axis
+    // Select and update the x-axis
     d3.select(lineGraphSvg).select('.x-axis')
+        .transition()
+        .duration(500)
         .call(xAxis);
 
-    // Update y-axis
+    // Select and update the y-axis
     d3.select(lineGraphSvg).select('.y-axis')
+        .transition()
+        .duration(500)
         .call(yAxis);
 
     // Update lines
-    d3.select(lineGraphSvg).selectAll('.line.cases')
-        .datum(filteredData)
-        .attr('d', d3.line().x(d => xScale(d.date)).y(d => yScale(d.cases)));
-
-    d3.select(lineGraphSvg).selectAll('.line.recovered')
-        .datum(filteredData)
-        .attr('d', d3.line().x(d => xScale(d.date)).y(d => yScale(d.recovered)));
-
-    d3.select(lineGraphSvg).selectAll('.line.deaths')
-        .datum(filteredData)
-        .attr('d', d3.line().x(d => xScale(d.date)).y(d => yScale(d.deaths)));
+    updateLine('Cases', filteredData);
+    updateLine('Recovered', filteredData);
+    updateLine('deaths', filteredData);
 }
 
-    function drawLine(g, data, metric, color, xScale, yScale) {
-            const line = d3.line()
-                .x(d => xScale(d.date))
-                .y(d => yScale(d[metric]));
+function updateLine(metric, filteredData) {
+    // Create a new d3 line generator using the updated scales
+    const lineGenerator = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d[metric]));
 
-            g.append("path")
-                .datum(data)
-                .attr("class", `line ${metric}`)
-                .attr("d", line)
-                .attr("fill", "none")
-                .attr("stroke", color)
-                .attr("stroke-width", 3);
-        }
+    // Select the path for the specific metric and transition its d attribute
+    d3.select(lineGraphSvg).select(`.line.${metric}`)
+        .datum(filteredData)
+        .transition()
+        .duration(500)
+        .attr('d', lineGenerator);
+}
 
+
+function drawLine(g, data, metric, color, xScale, yScale) {
+    const line = d3.line()
+        .x(d => xScale(d.date))
+        .y(d => yScale(d[metric]));
+
+    // Draw the actual line
+    g.append("path")
+        .datum(data)
+        .attr("class", `line ${metric}`)
+        .attr("d", line)
+        .attr("fill", "none")
+        .attr("stroke", color)
+        .attr("stroke-width", 3);
+
+    // Add a transparent hit area for easier mouse interaction
+    g.append("path")
+        .datum(data)
+        .attr("class", `hit-area ${metric}`)
+        .attr("d", line)
+        .attr("fill", "none")
+        .attr("stroke", "transparent")
+        .attr("stroke-width", 40) // Adjust this value to increase or decrease the hover area
+        .on('mouseover', () => tooltip.style('visibility', 'visible'))
+        .on('mousemove', (event, d) => {
+            const [x, y] = d3.pointer(event);
+            const date = xScale.invert(x);
+            const closestData = data.reduce((prev, curr) => {
+                return (Math.abs(curr.date - date) < Math.abs(prev.date - date) ? curr : prev);
+            });
+            tooltip
+                .html(`<strong>${metric.charAt(0).toUpperCase() + metric.slice(1)}:</strong> ${closestData[metric]}<br/><strong>Date:</strong> ${d3.timeFormat("%B %d")(closestData.date)}`)
+                .style('left', `${event.pageX + 15}px`)
+                .style('top', `${event.pageY + 15}px`);
+        })
+        .on('mouseout', () => tooltip.style('visibility', 'hidden'));
+}
+
+
+    function updatePath(filteredData, metric, color) {
+        const lineGenerator = d3.line()
+            .x(d => xScale(d.date))
+            .y(d => yScale(d[metric]));
+
+        d3.select(lineGraphSvg).select(`.line.${metric}`)
+            .datum(filteredData)
+            .transition()
+            .duration(500)
+            .attr('d', lineGenerator)
+            .attr('stroke', color);
+    }
 
     function processCovidData(csvData) {
         let processedData = {};
