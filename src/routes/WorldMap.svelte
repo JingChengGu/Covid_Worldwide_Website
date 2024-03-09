@@ -1,6 +1,16 @@
 <script>
     import { onMount } from 'svelte';
     import * as d3 from 'd3';
+    import { onDestroy } from 'svelte';
+    import { playing } from './store.js';
+    import { get, writable } from 'svelte/store';
+
+    onDestroy(() => {
+        if (intervalId) {
+            clearInterval(intervalId);
+        }
+    });
+
 
     let svg;
     let projection;
@@ -14,6 +24,44 @@
     let globalCovidData;
     let lineGraphSvg;
     let xScale, yScale, xAxis, yAxis;
+    let intervalId;
+    let speed = 300;
+
+    export function playTimeSlider() {
+    playing.update(current => {
+        clearInterval(intervalId);
+        if (current) {
+            return false;
+        } else {
+            intervalId = setInterval(() => {
+            const slider = document.getElementById('timeSlider');
+            let newValue = parseInt(slider.value) + 1;
+            if (newValue > daysCount) {
+                newValue = 0; // Reset to start or stop at the end as per your need
+                clearInterval(intervalId); // Optionally stop when it reaches the end
+                playing.set(false);
+            }
+            slider.value = newValue.toString();
+            slider.dispatchEvent(new Event('input'));
+        }, speed);
+            return true;
+        }
+    });
+}
+
+
+    function changeSpeed(newSpeed) {
+        speed = newSpeed;
+        if ($playing) {
+        playTimeSlider(); // Restart with new speed
+        }
+    }
+
+
+    export function stopTimeSlider() {
+        clearInterval(intervalId);
+        playing.set(false);
+    }
 
     function toggleGraph() {
         showLineGraph = !showLineGraph;
@@ -141,13 +189,13 @@
     // Select and update the x-axis
     d3.select(lineGraphSvg).select('.x-axis')
         .transition()
-        .duration(500)
+        .duration(150)
         .call(xAxis);
 
     // Select and update the y-axis
     d3.select(lineGraphSvg).select('.y-axis')
         .transition()
-        .duration(500)
+        .duration(150)
         .call(yAxis);
 
     // Update lines
@@ -166,7 +214,7 @@ function updateLine(metric, filteredData) {
     d3.select(lineGraphSvg).select(`.line.${metric}`)
         .datum(filteredData)
         .transition()
-        .duration(500)
+        .duration(150)
         .attr('d', lineGenerator);
 }
 
@@ -192,7 +240,7 @@ function drawLine(g, data, metric, color, xScale, yScale) {
         .attr("d", line)
         .attr("fill", "none")
         .attr("stroke", "transparent")
-        .attr("stroke-width", 40) // Adjust this value to increase or decrease the hover area
+        .attr("stroke-width", 50) // Adjust this value to increase or decrease the hover area
         .on('mouseover', () => tooltip.style('visibility', 'visible'))
         .on('mousemove', (event, d) => {
             const [x, y] = d3.pointer(event);
@@ -217,7 +265,7 @@ function drawLine(g, data, metric, color, xScale, yScale) {
         d3.select(lineGraphSvg).select(`.line.${metric}`)
             .datum(filteredData)
             .transition()
-            .duration(500)
+            .duration(150)
             .attr('d', lineGenerator)
             .attr('stroke', color);
     }
@@ -292,7 +340,7 @@ function drawLine(g, data, metric, color, xScale, yScale) {
         const paths = d3.select(svg).selectAll('path');
 
         paths.transition()
-            .duration(500)
+            .duration(150)
             .attr('fill', d => {
                 const countryData = covidData[d.properties.name];
                 const data = countryData && countryData[currentDate] ? countryData[currentDate] : { cases: 0, deaths: 0, recovered: 0 };
@@ -325,7 +373,9 @@ function drawLine(g, data, metric, color, xScale, yScale) {
     }
 </script>
 
+<button on:click={playTimeSlider}>{$playing ? 'Pause' : 'Play'}</button>
 <button on:click={toggleGraph}>{showLineGraph ? 'Show Map' : 'Show Line Graph'}</button>
+
 <div class="map-container" style="display: {showLineGraph ? 'none' : 'block'};">
     <!-- World Map SVG -->
     <svg bind:this={svg} width="100%" height="100%" viewBox="200 200 700 700"></svg>
