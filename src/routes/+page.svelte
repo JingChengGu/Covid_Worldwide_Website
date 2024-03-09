@@ -22,16 +22,12 @@
     <h1>Wenbin WorldWide INC. COVID Investigation</h1>
     <p>A story of how covid took over the world and changed everything, here is the dataset used <a href="https://www.kaggle.com/datasets/imdevskp/corona-virus-report?resource=download">Covid Data</a>.</p>
     <input type="range" min="0" max="daysCount" value="0" id="timeSlider" step="1">
-    <!-- Add an input to control the speed -->
-    <label for="speedRange">Speed:</label>
-    <input type="range" id="speedRange" min="100" max="2000" value="1000"
-      on:change="{(e) => WorldMap.changeSpeed(e.target.value)}">
-  
     <label for="timeSlider" id="sliderLabel">Date: </label>
   
     <WorldMap/>
   </main>
-
+  
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Oswald:wght@200..700&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
   

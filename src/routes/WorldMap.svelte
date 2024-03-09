@@ -26,6 +26,7 @@
     let xScale, yScale, xAxis, yAxis;
     let intervalId;
     let speed = 300;
+    
 
     export function playTimeSlider() {
     playing.update(current => {
@@ -49,11 +50,13 @@
     });
 }
 
-
-    function changeSpeed(newSpeed) {
-        speed = newSpeed;
-        if ($playing) {
-        playTimeSlider(); // Restart with new speed
+    const minInterval = 50; // Minimum interval value (fastest speed)
+    const maxInterval = 1000; // Maximum interval value (slowest speed)
+    function changeSpeed(event) {
+        const sliderValue = +event.target.value; // Convert the value to a number
+        speed = maxInterval - sliderValue + minInterval;
+        if (get(playing)) { // Check if the slider is currently playing
+            playTimeSlider(); // Restart the time slider with the new speed
         }
     }
 
@@ -372,6 +375,11 @@ function drawLine(g, data, metric, color, xScale, yScale) {
             });
     }
 </script>
+<!-- Add the speed slider input element -->
+<div>
+    <label for="speedSlider">Speed: </label>
+    <input type="range" id="speedSlider" min="50" max="1000" value="300" step="50" on:input={changeSpeed}>
+</div>
 
 <button on:click={playTimeSlider}>{$playing ? 'Pause' : 'Play'}</button>
 <button on:click={toggleGraph}>{showLineGraph ? 'Show Map' : 'Show Line Graph'}</button>
