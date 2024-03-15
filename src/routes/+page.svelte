@@ -6,6 +6,11 @@
     import { playing } from './store.js';
   
     let playPauseText = 'Play';
+    let showTitlePage = true;
+  
+    function goToMap() {
+      showTitlePage = false;
+    }
   
     $: playPauseText = $playing ? 'Pause' : 'Play';
   
@@ -16,16 +21,23 @@
   
   </script>
   
+  {#if showTitlePage}
+    <main class="title-page">
+      <h2>In just a matter of months, a microscopic invader changed the world entirely. How did COVID-19, a novel coronavirus, stealthily weave its way across continents. Join us on a journey to unravel the gripping tale of how a global pandemic took hold.</h2>
+      <p>click through to know how it happened</p>
+      <button on:click={goToMap}>Explore the Map</button>
+    </main>
+  {:else}
+    <main>
+      <h1>Wenbin WorldWide INC. COVID Investigation</h1>
+      <p>By: Ethan Deng, Wenbin Jiang, Jason Gu</p>
+      <p>Explore how covid took over the world and changed everything, here is the dataset used <a href="https://www.kaggle.com/datasets/imdevskp/corona-virus-report?resource=download">Covid Data</a>.</p>
+      <input type="range" min="0" max="daysCount" value="0" id="timeSlider" step="1">
+      <label for="timeSlider" id="sliderLabel">Date: </label>
+      <WorldMap/>
+    </main>
+  {/if}
   
-  
-  <main>
-    <h1>Wenbin WorldWide INC. COVID Investigation</h1>
-    <p>A story of how covid took over the world and changed everything, here is the dataset used <a href="https://www.kaggle.com/datasets/imdevskp/corona-virus-report?resource=download">Covid Data</a>.</p>
-    <input type="range" min="0" max="daysCount" value="0" id="timeSlider" step="1">
-    <label for="timeSlider" id="sliderLabel">Date: </label>
-  
-    <WorldMap/>
-  </main>
   
   
   <style>
@@ -77,11 +89,41 @@
         font-size: 1.1em;
         color: #080808;
     }
-    .current-headline {
-    padding: 10px;
-    margin-top: 20px; /* Adjust as needed */
-    background-color: #f5f5f5; /* Light grey background, change as desired */
-    border: 1px solid #ddd; /* Light grey border, change as desired */
+  
+  .title-page {
     text-align: center;
-}
+    padding: 2em; /* Existing top and bottom padding */
+    padding-left: 5%; /* Increase left padding */
+    padding-right: 5%; /* Increase right padding */
+    max-width: 1200px; /* Maximum width */
+    margin-left: auto; /* Centering horizontally - left */
+    margin-right: auto; /* Centering horizontally - right */
+  }
+  
+  .title-page h2 {
+    font-size: 3em; /* Adjust as needed */
+    margin-bottom: 4em;
+    word-wrap: break-word; /* Ensure text breaks nicely */
+  }
+  
+  .title-page p {
+    font-size: 1.7em; /* Adjust as needed */
+    margin-bottom: 1em;
+  }
+  
+    .title-page button {
+      font-size: 1.2em;
+      padding: 0.5em 1em;
+      cursor: pointer;
+      background-color: #4b0000;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      transition: background-color 0.3s;
+    }
+  
+    .title-page button:hover {
+      background-color: #690000;
+    }
+  
   </style>

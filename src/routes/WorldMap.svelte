@@ -8,14 +8,20 @@
 
 
     let eventHeadlines = [
-    { date: '2020-01-30', headline: 'Human-to-human transmission of COVID-19 confirmed in the U.S.' },
-    { date: '2020-01-30', headline: 'Human-to-human transmission of COVID-19 confirmed in the U.S.' },
-    { date: '2020-03-11', headline: 'COVID-19 declared a pandemic by WHO.' },
-    { date: '2020-03-27', headline: 'The CARES Act signed into law in the U.S.' },
-    { date: '2020-05-01', headline: 'Emergency use authorization for Remdesivir.' },
-    { date: '2020-07-06', headline: 'Over 200 scientists address airborne transmission risks.' },
-    { date: '2020-07-22', headline: 'CDC extends the no sail order for cruise ships.' }
-    ];
+    { date: '2020-01-22', headline: '2020-01-22: First travel-related case of COVID-19 detected in the U.S. in Washington State.' },
+    { date: '2020-01-30', headline: '2020-01-30: Human-to-human transmission of COVID-19 confirmed in the U.S., leading to increased precautions.' },
+    { date: '2020-02-03', headline: '2020-02-03: U.S. declares public health emergency for COVID-19, implementing travel restrictions and quarantine measures.' },
+    { date: '2020-02-29', headline: '2020-02-29: First death due to COVID-19 reported in the U.S. in Washington State.' },
+    { date: '2020-03-11', headline: '2020-03-11: COVID-19 declared a pandemic by WHO, highlighting the global spread and impact of the virus.' },
+    { date: '2020-03-13', headline: '2020-03-13: National emergency declared in the U.S. to combat COVID-19, freeing up resources and funding.' },
+    { date: '2020-03-27', headline: '2020-03-27: The CARES Act signed into law in the U.S., providing economic relief and support during the pandemic.' },
+    { date: '2020-05-01', headline: '2020-05-01: Emergency use authorization for Remdesivir, an antiviral drug, for treating COVID-19 patients.' },
+    { date: '2020-07-06', headline: '2020-07-06: Over 200 scientists address airborne transmission risks of COVID-19, urging updates to safety guidelines.' },
+    { date: '2020-07-22', headline: '2020-07-22: CDC extends the no sail order for cruise ships, citing ongoing COVID-19 concerns.' },
+    { date: '2020-07-27', headline: '2020-07-27: Moderna\'s COVID-19 vaccine begins Phase 3 clinical trial in the U.S., a crucial step towards approval.' }
+];
+
+
 
     
 
@@ -40,7 +46,7 @@
     let xScale, yScale, xAxis, yAxis;
     let intervalId;
     let speed = 300;
-    
+    let lastHeadline = ''; // This will hold the last headline
 
     export function playTimeSlider() {
     playing.update(current => {
@@ -62,20 +68,9 @@
             return true;
         }
     });
-    let lastHeadline = ''; // This will hold the last headline
-    function updateMap(currentDate) {
-      const paths = d3.select(svg).selectAll('path');
-      // ... existing logic for updating paths ...
-
-      // Find the event for the current date and update the currentHeadline store
-      let eventForCurrentDate = eventHeadlines.find(e => e.date === currentDate);
-      if (eventForCurrentDate) {
-        // Update the lastHeadline only if a new event for the current date is found
-        lastHeadline = eventForCurrentDate.headline;
-    }
-    currentHeadline.set(lastHeadline);
-  }
+      
 }
+
 
     const minInterval = 50; // Minimum interval value (fastest speed)
     const maxInterval = 1000; // Maximum interval value (slowest speed)
@@ -405,6 +400,16 @@ function drawLine(g, data, metric, color, xScale, yScale) {
             });
         let headline = eventHeadlines.find(event => event.date === currentDate);
         currentHeadline.set(headline ? headline.headline : '');
+        
+        let eventForCurrentDate = eventHeadlines.find(e => e.date === currentDate);
+
+
+      if (eventForCurrentDate) {
+        // Update lastHeadline only if a new event is found
+        lastHeadline = eventForCurrentDate.headline;
+    }
+    // Always set the currentHeadline to the last known headline
+    currentHeadline.set(lastHeadline);
     }
 </script>
 <div>
