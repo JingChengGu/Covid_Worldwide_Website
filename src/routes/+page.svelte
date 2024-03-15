@@ -77,4 +77,11 @@
         font-size: 1.1em;
         color: #080808;
     }
+    .current-headline {
+    padding: 10px;
+    margin-top: 20px; /* Adjust as needed */
+    background-color: #f5f5f5; /* Light grey background, change as desired */
+    border: 1px solid #ddd; /* Light grey border, change as desired */
+    text-align: center;
+}
   </style>

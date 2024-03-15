@@ -4,6 +4,20 @@
     import { onDestroy } from 'svelte';
     import { playing } from './store.js';
     import { get, writable } from 'svelte/store';
+    import { currentHeadline } from './store.js';
+
+
+    let eventHeadlines = [
+    { date: '2020-01-30', headline: 'Human-to-human transmission of COVID-19 confirmed in the U.S.' },
+    { date: '2020-01-30', headline: 'Human-to-human transmission of COVID-19 confirmed in the U.S.' },
+    { date: '2020-03-11', headline: 'COVID-19 declared a pandemic by WHO.' },
+    { date: '2020-03-27', headline: 'The CARES Act signed into law in the U.S.' },
+    { date: '2020-05-01', headline: 'Emergency use authorization for Remdesivir.' },
+    { date: '2020-07-06', headline: 'Over 200 scientists address airborne transmission risks.' },
+    { date: '2020-07-22', headline: 'CDC extends the no sail order for cruise ships.' }
+    ];
+
+    
 
     onDestroy(() => {
         if (intervalId) {
@@ -48,6 +62,19 @@
             return true;
         }
     });
+    let lastHeadline = ''; // This will hold the last headline
+    function updateMap(currentDate) {
+      const paths = d3.select(svg).selectAll('path');
+      // ... existing logic for updating paths ...
+
+      // Find the event for the current date and update the currentHeadline store
+      let eventForCurrentDate = eventHeadlines.find(e => e.date === currentDate);
+      if (eventForCurrentDate) {
+        // Update the lastHeadline only if a new event for the current date is found
+        lastHeadline = eventForCurrentDate.headline;
+    }
+    currentHeadline.set(lastHeadline);
+  }
 }
 
     const minInterval = 50; // Minimum interval value (fastest speed)
@@ -179,6 +206,7 @@
     drawLine(g, globalCovidData, 'deaths', '#ff1744', xScale, yScale);
     drawLine(g, globalCovidData, 'recovered', '#00e676', xScale, yScale);
 }
+
 
     function updateLineGraph(currentDate) {
     const filteredData = globalCovidData.filter(d => d.date <= currentDate);
@@ -372,19 +400,25 @@ function drawLine(g, data, metric, color, xScale, yScale) {
             .on('mouseout', function(event, d) {
                 tooltip.style('visibility', 'hidden');
                 d3.select(event.currentTarget).attr('fill', d.originalColor);
+
+            
             });
+        let headline = eventHeadlines.find(event => event.date === currentDate);
+        currentHeadline.set(headline ? headline.headline : '');
     }
 </script>
-<!-- Add the speed slider input element -->
 <div>
     <label for="speedSlider">Speed: </label>
     <input type="range" id="speedSlider" min="50" max="1000" value="300" step="50" on:input={changeSpeed}>
+    
 </div>
 
 <button on:click={playTimeSlider}>{$playing ? 'Pause' : 'Play'}</button>
 <button on:click={toggleGraph}>{showLineGraph ? 'Show Map' : 'Show Line Graph'}</button>
-
 <div class="map-container" style="display: {showLineGraph ? 'none' : 'block'};">
+        <!-- Current Headline display -->
+    
+    <div class="current-headline">{$currentHeadline}</div>
     <!-- World Map SVG -->
     <svg bind:this={svg} width="100%" height="100%" viewBox="200 200 700 700"></svg>
 </div>
@@ -393,3 +427,5 @@ function drawLine(g, data, metric, color, xScale, yScale) {
     <svg bind:this={lineGraphSvg} width="100%" height="650"></svg>
 </div>
 <div class="tooltip" bind:this={tooltip}></div>
+
+<!-- Add the speed slider input element -->
