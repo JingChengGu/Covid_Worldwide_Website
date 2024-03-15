@@ -203,32 +203,39 @@
 }
 
 
-    function updateLineGraph(currentDate) {
-    const filteredData = globalCovidData.filter(d => d.date <= currentDate);
+function updateLineGraph(currentDate) {
+        const filteredData = globalCovidData.filter(d => d.date <= currentDate);
 
-    // Update xScale domain based on filtered data
-    xScale.domain(d3.extent(filteredData, d => d.date));
+        // Update xScale domain based on filtered data
+        xScale.domain(d3.extent(filteredData, d => d.date));
 
-    // Update yScale domain based on filtered data
-    yScale.domain([0, d3.max(filteredData, d => Math.max(d.cases, d.deaths, d.recovered))]);
+        // Update yScale domain based on filtered data
+        yScale.domain([0, d3.max(filteredData, d => Math.max(d.cases, d.deaths, d.recovered))]);
 
-    // Select and update the x-axis
-    d3.select(lineGraphSvg).select('.x-axis')
-        .transition()
-        .duration(150)
-        .call(xAxis);
+        // Select and update the x-axis
+        d3.select(lineGraphSvg).select('.x-axis')
+            .transition()
+            .duration(150)
+            .call(xAxis);
 
-    // Select and update the y-axis
-    d3.select(lineGraphSvg).select('.y-axis')
-        .transition()
-        .duration(150)
-        .call(yAxis);
+        // Select and update the y-axis
+        d3.select(lineGraphSvg).select('.y-axis')
+            .transition()
+            .duration(150)
+            .call(yAxis);
 
-    // Update lines
-    updateLine('Cases', filteredData);
-    updateLine('Recovered', filteredData);
-    updateLine('deaths', filteredData);
-}
+        // Update lines
+        updateLine('Cases', filteredData);
+        updateLine('Recovered', filteredData);
+        updateLine('Deaths', filteredData);
+
+        // Update the current headline based on the date
+        let eventForCurrentDate = eventHeadlines.find(e => e.date === currentDate);
+        if (eventForCurrentDate) {
+            lastHeadline = eventForCurrentDate.headline;
+        }
+        currentHeadline.set(lastHeadline); // Set the current headline for the line graph as well
+    }
 
 function updateLine(metric, filteredData) {
     // Create a new d3 line generator using the updated scales
@@ -415,22 +422,23 @@ function drawLine(g, data, metric, color, xScale, yScale) {
 <div>
     <label for="speedSlider">Speed: </label>
     <input type="range" id="speedSlider" min="50" max="1000" value="300" step="50" on:input={changeSpeed}>
-    
 </div>
 
 <button on:click={playTimeSlider}>{$playing ? 'Pause' : 'Play'}</button>
 <button on:click={toggleGraph}>{showLineGraph ? 'Show Map' : 'Show Line Graph'}</button>
+
 <div class="map-container" style="display: {showLineGraph ? 'none' : 'block'};">
-        <!-- Current Headline display -->
-    
+    <!-- Current Headline display -->
     <div class="current-headline">{$currentHeadline}</div>
     <!-- World Map SVG -->
     <svg bind:this={svg} width="100%" height="100%" viewBox="200 200 700 700"></svg>
 </div>
+
 <div class="line-graph-container" style="display: {showLineGraph ? 'block' : 'none'};">
+    <!-- Current Headline display -->
+    <div class="current-headline">{$currentHeadline}</div>
     <!-- Line Graph SVG -->
     <svg bind:this={lineGraphSvg} width="100%" height="650"></svg>
 </div>
-<div class="tooltip" bind:this={tooltip}></div>
 
-<!-- Add the speed slider input element -->
+<div class="tooltip" bind:this={tooltip}></div>
