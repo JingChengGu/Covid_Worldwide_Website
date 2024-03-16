@@ -5,7 +5,12 @@
     import { playing } from './store.js';
     import { get, writable } from 'svelte/store';
     import { currentHeadline } from './store.js';
+    import { createEventDispatcher } from 'svelte';
+    const dispatch = createEventDispatcher();
 
+    function navigateToEndPage() {
+        dispatch('endPage');
+    }
 
     let eventHeadlines = [
     { date: '2020-01-22', headline: '2020-01-22: First travel-related case of COVID-19 detected in the U.S. in Washington State.' },
@@ -15,15 +20,14 @@
     { date: '2020-03-11', headline: '2020-03-11: COVID-19 declared a pandemic by WHO, highlighting the global spread and impact of the virus.' },
     { date: '2020-03-13', headline: '2020-03-13: National emergency declared in the U.S. to combat COVID-19, freeing up resources and funding.' },
     { date: '2020-03-27', headline: '2020-03-27: The CARES Act signed into law in the U.S., providing economic relief and support during the pandemic.' },
+    { date: '2020-04-10', headline: '2020-04-10: Over 18,600 confirmed deaths and more than 500,000 confirmed cases in under four months in the U.S, surpassing Spain and Italy' },
     { date: '2020-05-01', headline: '2020-05-01: Emergency use authorization for Remdesivir, an antiviral drug, for treating COVID-19 patients.' },
+    { date: '2020-05-26', headline: '2020-05-26: Navajo officials implement a series of mitigation efforts including extended weekend lockdowns, curfews, stay-at-home orders, masking, and checkpoints.' },
+    { date: '2020-06-15', headline: '2020-06-15: The number of confirmed COVID-19 cases in the U.S. surpasses 2 million.' },
     { date: '2020-07-06', headline: '2020-07-06: Over 200 scientists address airborne transmission risks of COVID-19, urging updates to safety guidelines.' },
     { date: '2020-07-22', headline: '2020-07-22: CDC extends the no sail order for cruise ships, citing ongoing COVID-19 concerns.' },
     { date: '2020-07-27', headline: '2020-07-27: Moderna\'s COVID-19 vaccine begins Phase 3 clinical trial in the U.S., a crucial step towards approval.' }
 ];
-
-
-
-    
 
     onDestroy(() => {
         if (intervalId) {
@@ -426,6 +430,7 @@ function drawLine(g, data, metric, color, xScale, yScale) {
 
 <button on:click={playTimeSlider}>{$playing ? 'Pause' : 'Play'}</button>
 <button on:click={toggleGraph}>{showLineGraph ? 'Show Map' : 'Show Line Graph'}</button>
+<button on:click={navigateToEndPage}>Go to End Page</button>
 
 <div class="map-container" style="display: {showLineGraph ? 'none' : 'block'};">
     <!-- Current Headline display -->
