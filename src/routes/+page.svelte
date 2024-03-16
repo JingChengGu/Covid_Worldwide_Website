@@ -27,7 +27,7 @@
 
 {#if showTitlePage}
   <main class="title-page">
-    <h2>In just a matter of months, an infectious disease changed the world entirely. How did COVID-19, the coronavirus, weave its way across continents. Join us on a journey to unravel the story of how a global pandemic took hold starting in 2020.</h2>
+    <h2>In just a matter of months, an infectious disease changed the world entirely. How did COVID-19, the coronavirus, weave its way across continents? Join us on a journey to unravel the story of how a global pandemic took hold starting in 2020.</h2>
     <p>click through to know how it happened</p>
     <button on:click={goToMap}>Explore the Map</button>
   </main>
