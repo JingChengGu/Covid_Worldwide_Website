@@ -39,7 +39,7 @@
   </main>
 {:else}
   <main>
-    <h1>Wenbin WorldWide INC. COVID Investigation</h1>
+    <h1>WorldWide COVID Investigation</h1>
     <p>By: Ethan Deng, Wenbin Jiang, Jason Gu</p>
     <p>Explore how covid took over the world and changed everything, here is the dataset used <a href="https://www.kaggle.com/datasets/imdevskp/corona-virus-report?resource=download">Covid Data</a>.</p>
     <input type="range" min="0" max="daysCount" value="0" id="timeSlider" step="1">
